@@ -4,6 +4,7 @@ DUNE-PRISM: GEC from muon side
 > - Some are copied from: [FNAL instruction](https://github.com/FlynnYGUO/NeutrinoPhysics/blob/main/GEC/BaronCodeOutdated/NDGEC.md) and [NNhome instruction](https://github.com/FlynnYGUO/NeutrinoPhysics/blob/main/GEC/BaronNewCode/Instructions.md)
 > - [DUNE Computing Training](https://dune.github.io/computing-basics/index.html)  
 > - [DUNE: SL7 to ALMA9](https://wiki.dunescience.org/wiki/SL7_to_Alma9_conversion)
+> - Do not use direct /pnfs/ as it is both slower for you and very hard on the system.  Please use [```pfns2xrootd```](https://wiki.dunescience.org/wiki/DUNE_Computing/Using_DUNE%27s_dCache_Scratch_and_Persistent_Space_at_Fermilab#Using_XRootD_to_analyze_files_in_dCache_without_copying_them_locally) to convert filenames and then run.
 ## FNAL machine
 ### 0. Setup
 #### 1. Log in & DUNE FNAL machines (dunegpvm*) environment setup:
@@ -45,7 +46,7 @@ Please avoid reading from, copying from, or writing massive amount of files dire
 If you want to run code interactively on ```dunegpvm*``` for debugging, follow instruction in this section.
 ```
 cd DUNE_PRISM_GEC_ND/code
-python3 new_hadron_muon_mktree.py /pnfs/dune/persistent/physicsgroups/dunelbl/abooth/PRISM/Production/Simulation/ND_CAFMaker/v7/CAF/0mgsimple/101/FHC.1101999.CAF.root
+python3 new_hadron_muon_mktree.py $(pnfs2xrootd /pnfs/dune/persistent/physicsgroups/dunelbl/abooth/PRISM/Production/Simulation/ND_CAFMaker/v7/CAF/0mgsimple/101/FHC.1101999.CAF.root)
 ```
 
 #### 3.1 Submit grid job (Geometric efficiency for ND events at ND)
