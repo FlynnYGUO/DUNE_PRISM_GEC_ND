@@ -6,12 +6,19 @@ DUNE-PRISM: GEC from muon side
 > - [DUNE: SL7 to ALMA9](https://wiki.dunescience.org/wiki/SL7_to_Alma9_conversion)
 > - Do not use direct /pnfs/ as it is both slower for you and very hard on the system.  Please use [```pfns2xrootd```](https://wiki.dunescience.org/wiki/DUNE_Computing/Using_DUNE%27s_dCache_Scratch_and_Persistent_Space_at_Fermilab#Using_XRootD_to_analyze_files_in_dCache_without_copying_them_locally) to convert filenames and then run.
 ## FNAL machine
-### 0. Setup
-#### 1. Log in & DUNE FNAL machines (dunegpvm*) environment setup:
+### 0. Login
 ```
 kfnal                                      # Short for kinit -f <username>@FNAL.GOV. In my laptop, alias kfnal="/usr/bin/kinit flynnguo@FNAL.GOV" in ~/.zshrc
 ssh -X flynnguo@dunegpvm15.fnal.gov
 exit                                       # Quit FNAL
+```
+### 1. Environment setup:
+#### A. SL7 version
+Log in to an Alma9 gpvm, then type:
+```
+/cvmfs/oasis.opensciencegrid.org/mis/apptainer/current/bin/apptainer shell --shell=/bin/bash \
+-B /cvmfs,/exp,/nashome,/pnfs/dune,/opt,/run/user,/etc/hostname,/etc/hosts,/etc/krb5.conf --ipc --pid \
+/cvmfs/singularity.opensciencegrid.org/fermilab/fnal-dev-sl7:latest
 ```
 Environment setup (only do it once):
 ```
@@ -35,21 +42,56 @@ You can also source the new version of ROOT:
 ```
 source /cvmfs/sft.cern.ch/lcg/app/releases/ROOT/6.24.08/x86_64-centos7-gcc48-opt/bin/thisroot.sh
 ```
+or simply:
+```
+setup root v6_28_12 -q e26:p3915:prof
+```
 Files I/O on DUNE machines
 Input ND CAF files are here: ```/pnfs/dune/persistent/physicsgroups/dunelbl/abooth/PRISM/Production/Simulation/ND_CAFMaker/v7/CAF```
 Output files from grid jobs are written to the scratch area ```/pnfs/dune/scratch/users/<your username>```.
 
 Please avoid reading from, copying from, or writing massive amount of files directly to the pnfs area ```/pnfs/dune/persistent```, this will slow down the file system. Refer to [this wiki](https://mu2ewiki.fnal.gov/wiki/DataTransfer) for good practices on data transfer.  
 > To transfer files, highly recommended to tar all files first ```tar -czvf <Filename.tar.gz> all_files``` and copy the .tar.gz to your directory then untar it ```tar -xvzf``` instead of copying individual root files.
-
-#### 2. Interactive run
-If you want to run code interactively on ```dunegpvm*``` for debugging, follow instruction in this section.
+#### B. ALMA9 version
+Get the larsoft version of the env
+```
+source /cvmfs/larsoft.opensciencegrid.org/spack-packages/setup-env.sh 
+```
+Get some basic things, use the command spack find to find packages you might want. If you just type spack load ... you may be presented with a choice and will need to choose. 
+```
+spack load root@6.28.12
+spack load cmake@3.27.7
+spack load gcc@12.2.0
+spack load python@3.9.15
+```
+Make a virtual enviroment (First time only):
+```
+python -m venv venv_3_9_15_PRISM_GEC
+source venv_3_9_15_PRISM_GEC/bin/activate
+pip install numpy
+pip install torch
+pip install spicy
+pip install uproot3
+pip install uproot4
+```
+config for dune
+```
+spack load r-m-dd-config@1.0 experiment=dune
+export SAM_EXPERIMENT=dune
+```
+Next time:
+```
+source venv_3_9_15_PRISM_GEC/bin/activate
+```
+### 2. Interactive run
+- Version requirement: python 3.9, numpy 1.26.1 (2.x.x doesn’t work)
+- If you want to run code interactively on ```dunegpvm*``` for debugging, follow instruction in this section. 
 ```
 cd DUNE_PRISM_GEC_ND/code
 python3 new_hadron_muon_mktree.py $(pnfs2xrootd /pnfs/dune/persistent/physicsgroups/dunelbl/abooth/PRISM/Production/Simulation/ND_CAFMaker/v7/CAF/0mgsimple/101/FHC.1101999.CAF.root)
 ```
 
-#### 3.1 Submit grid job (Geometric efficiency for ND events at ND)
+### 3.1 Submit grid job (Geometric efficiency for ND events at ND)
 ```
 # Make a tarball to send everything you need to run your program on grid node
 cd DUNE_PRISM_GEC_ND/code
@@ -80,7 +122,7 @@ The job script (```run_NDcombEff.sh```) can be adjusted to run more than one fil
 
 for ifile in $(cat ${INPUT_TAR_DIR_LOCAL}/NDCAFs.txt | head -${LINE_N} | tail -1); do
 ```
-#### 3.2 Submit grid job (Geometric efficiency for FD events at ND)
+### 3.2 Submit grid job (Geometric efficiency for FD events at ND)
 ```
 # Make a tarball to send everything you need to run your program on grid node
 cd DUNE_PRISM_GEC_ND/code
@@ -95,24 +137,23 @@ jobsub_submit -G dune -N 9635 --memory=5GB --disk=10GB --expected-lifetime=8h --
 ```
 
 ## NNhome machine
-### 0. Setup
-#### 1. Log in:
+### 1. Log in:
 ```
 ssh -X fyguo@nnhome.physics.sunysb.edu       # Log my ivy account: <username>@ivy.physics.sunysb.edu
 passwd                                     # Reset my password  
 exit                                       # Quit ivy
 ```
-#### 2. Install packages/tools
+### 2. Install packages/tools
 ```
 pip install --target=<a directory you specify> uproot  # Install uproot, you may also need to install torch
 source /home/rrazakami/workspace/ROOT/root_binary/bin/thisroot.sh  # Use other's ROOT source file instead of installing a new one under my repository
 # Remember to source root.sh every time once log in the NNhome machine
 ```
-#### 3. Muon NN
+### 3. Muon NN
 The network outputs how probable a muon is fully contained in ND LAr and tracker matched in TMS downstream: https://github.com/weishi10141993/MuonEffNN
 The current used network file is located at ```/home/barwu/repos/MuonEffNN/8thTry/muonEff30.nn```
 
-### I. Get ND eff files
+#### I. Get ND eff files
 The ND CAFs have been copied from Fermilab to NNhome under this path:
 ```
 /storage/shared/barwu/10thTry/NDCAF
@@ -147,7 +188,7 @@ draw_histograms_ND(<geoeff_cut>) #For example: draw_histograms_ND(0.1) means 10%
 ```
 There will be a set of all graphs available, and a copy of each of those graphs organized by selection-cut into different TCanvases. Ratio plots for each graph are also available. The graphs and ratio plots will automatically save once they are finished loading.
 
-### II. Get FD eff files
+#### II. Get FD eff files
 Run this script:
 ```
 python3 /home/fyguo/DUNE_PRISM_GEC_ND/code/FD_maketree.py
@@ -166,7 +207,7 @@ root -l -b
 draw_histograms_FD(<geoeff_cut>) #For example: draw_histograms_FD(0.1) means 10% geoeff_cut
 ```
 
-### III. Get ND ratios vs FD ratios
+#### III. Get ND ratios vs FD ratios
 Generate all ND ratios, FD ratios and NDvsFD ratios.
 ```
 root -l -b /home/fyguo/DUNE_PRISM_GEC_ND/code/NDaFD_RatioPlots.cpp
