@@ -74,15 +74,16 @@ pip install spicy
 pip install uproot3
 pip install uproot4
 ```
-config for dune
-```
-spack load r-m-dd-config@1.0 experiment=dune
-export SAM_EXPERIMENT=dune
-```
 Next time:
 ```
 source venv_3_9_15_PRISM_GEC/bin/activate
 ```
+Config for dune
+```
+spack load r-m-dd-config@1.0 experiment=dune
+export SAM_EXPERIMENT=dune
+```
+
 ### 2. Interactive run
 - Version requirement: python 3.9, numpy 1.26.1 (2.x.x doesn’t work)
 - If you want to run code interactively on ```dunegpvm*``` for debugging, follow instruction in this section. 
