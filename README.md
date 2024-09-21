@@ -55,6 +55,7 @@ Please avoid reading from, copying from, or writing massive amount of files dire
 #### B. ALMA9 version
 Get the larsoft version of the env
 ```
+cd /exp/dune/app/users/$USER
 source /cvmfs/larsoft.opensciencegrid.org/spack-packages/setup-env.sh 
 ```
 Get some basic things, use the command spack find to find packages you might want. If you just type spack load ... you may be presented with a choice and will need to choose. 
@@ -76,7 +77,7 @@ pip install uproot4
 ```
 Next time:
 ```
-source venv_3_9_15_PRISM_GEC/bin/activate
+source /exp/dune/app/users/$USER/venv_3_9_15_PRISM_GEC/bin/activate
 ```
 Config for dune
 ```
