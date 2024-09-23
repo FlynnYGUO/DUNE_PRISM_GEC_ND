@@ -64,6 +64,7 @@ spack load root@6.28.12
 spack load cmake@3.27.7
 spack load gcc@12.2.0
 spack load python@3.9.15
+spack load kx509
 ```
 Make a virtual enviroment (First time only):
 ```
@@ -78,6 +79,12 @@ pip install uproot4
 Next time:
 ```
 source /exp/dune/app/users/$USER/venv_3_9_15_PRISM_GEC/bin/activate
+```
+The kx509 gets a certificate from your kerberos ticket
+```
+kx509
+export ROLE=Analysis
+voms-proxy-init -rfc -noregen -voms=dune:/dune/Role=$ROLE -valid 120:00
 ```
 Config for dune
 ```
