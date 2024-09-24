@@ -218,7 +218,7 @@ void histogram_files_ND_FNAL()
 
           if( geo_eff >= geoeff_cut && *item.field_value < h)
           {
-            if(geoeff_cut != 0)
+            if(geo_eff != 0)
             {
               hist2->Fill(*item.field_value, *sel.sel_value); // Sel
               hist3->Fill(*item.field_value, *sel.sel_value/geo_eff); // Geo-corrected
